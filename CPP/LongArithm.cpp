@@ -14,6 +14,8 @@ private:
     void push_back(_l n){this->num.push_back(n);}
     void resize(size_t s){this->num.resize(s);}
     size_t size(){return this->num.size();}
+    static string mulstr(const char* str, _l num){ string a = ""; for (_l i = 0; i < num; i++) a += str; return a; }
+    void clear_zeros(){ for (_l i = num.size()-1; i>=0; --i){if(num[i] != 0) return; else num.pop_back(); } }
 public:
     static _l stoi(string s){
         _l sum = 0;
@@ -32,39 +34,70 @@ public:
             this->push_back(BigInteger::stoi(str));
         }
     }
+    BigInteger(_l v){num.push_back(v);}
+    BigInteger(const BigInteger& bint){
+        this->num = bint.num;
+    }
+    BigInteger& operator=(const char s){
+        BigInteger b(s);
+        return *this = b;
+    }
+    BigInteger& operator=(const BigInteger& bint){
+        if(this != &bint){
+            this->num = bint.num;
+        }
+        return *this;
+    }
+    BigInteger& operator=(const _l& v){
+        num.push_back(v);
+    }
     _l at(size_t _pos){
         return (num[_pos]);
     }
-    BigInteger add(BigInteger b){
+
+
+    BigInteger add(BigInteger& b){
         BigInteger res;
         _l extra = 0, tmp = 0;
         if (b.size() > this->size()) this->resize(b.size());
         else b.resize(this->size());
         for (_l i = 0; i < this->size(); i++){
             tmp = this->at(i) + b.at(i) + extra;
-            extra = tmp / BigInteger::stoi("1" + string("0", BASE));
-            res.push_back(tmp % BigInteger::stoi("1" + string("0", BASE)));
+            extra = tmp / BigInteger::stoi("1" + BigInteger::mulstr("0", BASE));
+            res.push_back(tmp % BigInteger::stoi("1" + BigInteger::mulstr("0", BASE)));
         }
         res.push_back(extra);
+        return res;
     }
 
-    BigInteger operator+ (BigInteger b){
+    BigInteger operator+ (BigInteger& b){
         return this->add(b);
     }
+    BigInteger operator+ (_l b){
+        BigInteger B(b);
+        return this->add(B);
+    }
 
-    void print(){
+    void print(const char* end="\n", const char* sep=""){
+        if(this->size() == 0)
+            return;
+        clear_zeros();
         for(_l i = num.size()-1; i >= 0; i--){
-            cout << num[i];
+            if(num[i] == 0){
+                cout << BigInteger::mulstr("0", BASE) << sep;
+            }
+            else{
+                cout << num[i] << sep;
+            }
         }
+        cout << end;
     }
 };
 
 int main()
 {
-    BigInteger a("12345678901234567890123456789");
-    BigInteger b("12345678901234567890123456789");
-    BigInteger c("12345678901234567890123456789");
-    a.print();
-    (a+b+c).print();
+    BigInteger a("9999999999999999999999999999999999999999");
+    BigInteger b = a + 1;
+    b.print("\n", "|");
     return 0;
 }
